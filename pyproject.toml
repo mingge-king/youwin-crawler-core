@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ggzy-crawler-core"
+version = "0.1.0"
+description = "Self-bootstrapping web crawler engine for Chinese government procurement platforms"
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    {name = "ggzy-crawler contributors"}
+]
+keywords = ["crawler", "scraping", "government-data", "ggzy", "web-scraping"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    "scrapling>=0.1.0",
+    "playwright>=1.40.0",
+    "beautifulsoup4>=4.12.0",
+    "lxml>=4.9.0",
+    "markdownify>=0.3.0",
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+stealth = ["playwright-stealth>=0.1.0"]
+crypto = ["pycryptodome>=3.19.0"]
+
+[project.urls]
+Homepage = ""
+Repository = ""
