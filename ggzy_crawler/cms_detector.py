@@ -2,7 +2,7 @@
 
 Rule-driven CMS detection for Chinese government procurement platforms.
 Detects: epoint, TRS, huilan, generic_gov, cmstop, asp_net, java_cms,
-query_param, content_pattern, api_json, chinatax, and variants.
+query_param, content_pattern, api_json, tax_portal, and variants.
 """
 import re
 import json
@@ -134,7 +134,7 @@ CMS_SIGNATURES = [
     },
     {
         "name": "simple_html",
-        "label": "Simple HTML GGZY",
+        "label": "Simple HTML",
         "checks": {
             "path_jyxx_simple": (r'/jyxx/\d+/\d+/\d{8}/[a-f0-9\-]+\.html', 8),
             "path_tzgg_date": (r'/tzgg/\d{8}/[a-f0-9\-]+\.html', 6),
@@ -392,10 +392,10 @@ CMS_SIGNATURES = [
         },
     },
     {
-        "name": "chinatax",
-        "label": "Tax Bureau (chinatax)",
+        "name": "tax_portal",
+        "label": "Tax Portal",
         "checks": {
-            "chinatax_domain": (r'chinatax\.gov\.cn', 9),
+            "tax_domain": (r'/tax|/shuiwu|/swj', 6),
         },
         "config": {
             "engine": "list_pagination",
@@ -427,12 +427,10 @@ def _score_cms(html, url):
                 score += weight
         parsed = urlparse(url)
         hostname = parsed.hostname or ""
-        if "chinatax" in hostname:
-            score += 5 if sig["name"] == "chinatax" else 0
-        if ".gov.cn" in hostname:
+        if any(kw in hostname for kw in ("tax", "shuiwu", "swj")):
+            score += 5 if sig["name"] == "tax_portal" else 0
+        if hostname.endswith((".cn", ".com.cn", ".org.cn", ".net.cn")):
             score += 2 if sig["name"] == "generic_gov" else 0
-        if "hnsggzy" in hostname:
-            score += 5 if sig["name"] == "huilan_hnsggzy" else 0
         scores.append((sig["name"], score))
     scores.sort(key=lambda x: x[1], reverse=True)
     return scores
@@ -556,20 +554,20 @@ def _detect_kb_domain(site_code, site_name="", url=""):
     """Infer knowledge base domain from site_code/site_name/url."""
     text = (site_code + site_name + url).lower()
     mapping = [
-        ('ggzy', 'GGZY'), ('jyzx', 'GGZY'),
-        ('fgw', '发改'), ('fagai', '发改'), ('ndrc', '发改'),
-        ('zjj', '住建'), ('zjt', '住建'), ('zhujian', '住建'), ('jsj', '住建'),
-        ('sthjj', '生态环境'), ('shengtai', '生态环境'), ('hbj', '生态环境'),
-        ('scjgj', '市场监管'), ('shichang', '市场监管'), ('amr', '市场监管'),
-        ('yjglj', '应急管理'), ('yingji', '应急管理'), ('ajj', '应急管理'),
-        ('zrzy', '自然资源'), ('ziran', '自然资源'), ('gtzy', '自然资源'),
-        ('shuiwu', '税务'), ('swj', '税务'), ('chinatax', '税务'),
-        ('slj', '水利'), ('shuili', '水利'), ('mwr', '水利'),
-        ('jtj', '交通运输'), ('jtys', '交通运输'), ('jiaotong', '交通运输'),
-        ('czj', '财政'), ('caizheng', '财政'), ('mof', '财政'),
-        ('rsj', '人社'), ('renshe', '人社'), ('mohrss', '人社'),
-        ('sjj', '审计'), ('shenji', '审计'),
-        ('nyj', '能源'), ('nengyuan', '能源'),
+        ('ggzy', 'procurement'), ('jyzx', 'procurement'),
+        ('fgw', 'development'), ('fagai', 'development'), ('ndrc', 'development'),
+        ('zjj', 'construction'), ('zjt', 'construction'), ('zhujian', 'construction'), ('jsj', 'construction'),
+        ('sthjj', 'environment'), ('shengtai', 'environment'), ('hbj', 'environment'),
+        ('scjgj', 'regulation'), ('shichang', 'regulation'), ('amr', 'regulation'),
+        ('yjglj', 'safety'), ('yingji', 'safety'), ('ajj', 'safety'),
+        ('zrzy', 'resources'), ('ziran', 'resources'), ('gtzy', 'resources'),
+        ('shuiwu', 'tax'), ('swj', 'tax'),
+        ('slj', 'water'), ('shuili', 'water'), ('mwr', 'water'),
+        ('jtj', 'transport'), ('jtys', 'transport'), ('jiaotong', 'transport'),
+        ('czj', 'finance'), ('caizheng', 'finance'), ('mof', 'finance'),
+        ('rsj', 'hr'), ('renshe', 'hr'), ('mohrss', 'hr'),
+        ('sjj', 'audit'), ('shenji', 'audit'),
+        ('nyj', 'energy'), ('nengyuan', 'energy'),
     ]
     for key, domain in mapping:
         if key in text:
@@ -681,21 +679,17 @@ def _derive_site_code(url, site_name):
     }
 
     if len(parts) >= 3 and parts[-1] in ('cn', 'com', 'net'):
-        if parts[-2] == 'gov':
-            if len(parts) >= 4:
-                dept_part = parts[0]
-                city_part = parts[1]
-            else:
-                city_part = parts[0]
-                dept_part = 'ggzy'
+        if len(parts) >= 4:
+            dept_part = parts[0]
+            city_part = parts[1]
         else:
             city_part = parts[0]
-            dept_part = 'ggzy'
+            dept_part = 'procurement'
 
-        dept = 'ggzy'
+        dept = 'procurement'
         for dw in dept_words:
             if dept_part == dw or dept_part.startswith(dw):
-                dept = dw.replace('ggzyjy', 'ggzy').replace('jyzx', 'ggzy').replace('gzjy', 'ggzy')
+                dept = dw.replace('ggzyjy', 'procurement').replace('jyzx', 'procurement').replace('gzjy', 'procurement')
                 if 'zjj' in dept_part: dept = 'zjj'
                 if 'fgw' in dept_part: dept = 'fgw'
                 if 'sthjj' in dept_part: dept = 'sthjj'

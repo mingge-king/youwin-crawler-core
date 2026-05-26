@@ -1,15 +1,16 @@
 """
-ggzy-crawler-core: Self-bootstrapping crawler engine for government procurement platforms.
+ggzy-crawler-core: Self-bootstrapping crawler engine for large-scale web data collection.
 
 Key features:
-- Zero-config site auto-detection (6 CMS types)
+- Zero-config site auto-detection (15+ CMS types)
 - WeChat official account article extraction
 - Multi-engine list extraction (HTTP, Browser, API JSON)
 - 6-level failure classification with automatic fallback
 - Rule-driven, LLM-as-fallback architecture
+- Per-site URL deduplication with disk persistence
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 from ggzy_crawler.fetcher import fetch, FetchResult
 from ggzy_crawler.anti_bot import BrowserFetcher
@@ -21,3 +22,12 @@ from ggzy_crawler.list_extractor import extract_list, extract_links, classify_li
 from ggzy_crawler.detail_extractor import extract_detail
 from ggzy_crawler.search_extractor import search, search_with_browser
 from ggzy_crawler.convenience import crawl
+from ggzy_crawler.dedup import (
+    check_and_add,
+    persist,
+    load_from_disk,
+    load_all_from_disk,
+    size,
+    skipped_count,
+    stats,
+)

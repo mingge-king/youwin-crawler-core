@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ggzy-crawler-core"
-version = "0.1.0"
-description = "Self-bootstrapping web crawler engine for Chinese government procurement platforms"
+version = "0.1.1"
+description = "Self-bootstrapping web crawler engine — auto-detect CMS, extract lists, handle pagination, zero config"
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
     {name = "ggzy-crawler contributors"}
 ]
-keywords = ["crawler", "scraping", "government-data", "ggzy", "web-scraping"]
+keywords = ["crawler", "scraping", "web-scraping", "data-collection", "auto-detection"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
